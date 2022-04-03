@@ -1,3 +1,7 @@
+# @title Big Int 6
+# @author Non
+# @notice Unigned 384 bit number split into six 64-bit limbs
+
 # The base of the representation.
 const BASE = 2 ** 64
 
@@ -33,6 +37,22 @@ struct UnreducedBigInt10:
     member d7 : felt
     member d8 : felt
     member d9 : felt
+end
+
+struct BigInt12:
+    member d0 : felt
+    member d1 : felt
+    member d2 : felt
+    member d3 : felt
+    member d4 : felt
+    member d5 : felt
+    member d6 : felt
+    member d7 : felt
+    member d8 : felt
+    member d9 : felt
+    member d10 : felt
+    member d11 : felt
+    member d12 : felt
 end
 
 func bigint_mul(x : BigInt6, y : BigInt6) -> (res : UnreducedBigInt10):
