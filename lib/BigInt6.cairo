@@ -52,7 +52,24 @@ struct BigInt12:
     member d9 : felt
     member d10 : felt
     member d11 : felt
-    member d12 : felt
+end
+
+func big_int_12_zero() -> (res : BigInt12):
+    return (
+        res=BigInt12(
+        d0=0,
+        d1=0,
+        d2=0,
+        d3=0,
+        d4=0,
+        d5=0,
+        d6=0,
+        d7=0,
+        d8=0,
+        d9=0,
+        d10=0,
+        d11=0
+        ))
 end
 
 func bigint_mul(x : BigInt6, y : BigInt6) -> (res : UnreducedBigInt10):

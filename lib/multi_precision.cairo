@@ -1,4 +1,4 @@
-from lib.BigInt6 import BigInt6, BigInt12, BASE
+from lib.BigInt6 import BigInt6, BigInt12, BASE, big_int_12_zero
 from starkware.cairo.common.math_cmp import is_le, is_nn
 from starkware.cairo.common.math import unsigned_div_rem
 from starkware.cairo.common.bitwise import bitwise_and
@@ -117,4 +117,54 @@ func multi_precision_sub{range_check_ptr}(x : BigInt6, y : BigInt6) -> (res : Bi
         d4=d4,
         d5=trunacted_d5
         ))
+end
+
+func mul_digit{range_check_ptr}(x : felt, c : felt, y : BigInt6) -> (
+        carry : felt, product : BigInt6):
+    # TODO research if product(d0) > BASE then subtracting base will cost less gas
+    let (r_0, d0) = unsigned_div_rem(x * y.d0, BASE)
+    let (r_1, d1) = unsigned_div_rem((x * y.d1) + r_0, BASE)
+    let (r_2, d2) = unsigned_div_rem((x * y.d2) + r_1, BASE)
+    let (r_3, d3) = unsigned_div_rem((x * y.d3) + r_2, BASE)
+    let (r_4, d4) = unsigned_div_rem((x * y.d4) + r_3, BASE)
+    let (r_5, d5) = unsigned_div_rem((x * y.d5) + r_4 + c, BASE)
+
+    return (carry=r_5, product=BigInt6(d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5))
+end
+
+func sum_products{range_check_ptr}(
+        p0 : BigInt6, p1 : BigInt6, p2 : BigInt6, p3 : BigInt6, p4 : BigInt6, p5 : BigInt6,
+        c : felt) -> (sum : BigInt12):
+    let (sum_zero) = big_int_12_zero()
+
+    let (c0, d0) = unsigned_div_rem(p0.d0, BASE)
+    let (c1, d1) = unsigned_div_rem(p0.d1 + p1.d0 + c0, BASE)
+    let (c2, d2) = unsigned_div_rem(p0.d2 + p1.d1 + p2.d0 + c1, BASE)
+    let (c3, d3) = unsigned_div_rem(p0.d3 + p1.d2 + p2.d1 + p3.d0 + c2, BASE)
+    let (c4, d4) = unsigned_div_rem(p0.d4 + p1.d3 + p2.d2 + p3.d1 + p4.d0 + c3, BASE)
+    let (c5, d5) = unsigned_div_rem(p0.d5 + p1.d4 + p2.d3 + p3.d2 + p4.d1 + p5.d0 + c4, BASE)
+    let (c6, d6) = unsigned_div_rem(p1.d5 + p2.d4 + p3.d3 + p4.d2 + p5.d1 + c5, BASE)
+    let (c7, d7) = unsigned_div_rem(p2.d5 + p3.d4 + p4.d3 + p5.d2 + c6, BASE)
+    let (c8, d8) = unsigned_div_rem(p3.d5 + p4.d4 + p5.d3 + c7, BASE)
+    let (c9, d9) = unsigned_div_rem(p4.d5 + p5.d4 + c8, BASE)
+    let (c10, d10) = unsigned_div_rem(p5.d5 + c9, BASE)
+
+    return (
+        sum=BigInt12(
+        d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5, d6=d6, d7=d7, d8=d8, d9=d9, d10=d10, d11=c10 + c
+        ))
+end
+
+func multi_precision_mul{range_check_ptr}(x : BigInt6, y : BigInt6) -> (product : BigInt12):
+    alloc_locals
+
+    let (c0 : felt, p0 : BigInt6) = mul_digit(x.d0, 0, y)
+    let (c1 : felt, p1 : BigInt6) = mul_digit(x.d1, c0, y)
+    let (c2 : felt, p2 : BigInt6) = mul_digit(x.d2, c1, y)
+    let (c3 : felt, p3 : BigInt6) = mul_digit(x.d3, c2, y)
+    let (c4 : felt, p4 : BigInt6) = mul_digit(x.d4, c3, y)
+    let (c5 : felt, p5 : BigInt6) = mul_digit(x.d5, c4, y)
+
+    let (product) = sum_products(p0, p1, p2, p3, p4, p5, c5)
+    return (product)
 end
