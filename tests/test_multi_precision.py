@@ -6,9 +6,26 @@ from math import sqrt
 from hypothesis import given, strategies as st, settings
 
 largest_factor = sqrt(2**(64 * 11))
+
+
 @given(
-    x=st.integers(min_value=5497642353925, max_value=largest_factor),
-    y=st.integers(min_value=179179581801664537082565754506932209172823195829251769561039074500261963097709406920576155164696742528265, max_value=largest_factor),
+    x=st.integers(min_value=0, max_value=largest_factor),
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_multi_precision_square(multi_precision_factory, x):
+    contract = multi_precision_factory
+
+    execution_info = await contract.square(split(x)).call()
+
+    result = pack12(execution_info.result[0])
+    assert result == x * x
+
+
+
+@given(
+    x=st.integers(min_value=0, max_value=largest_factor),
+    y=st.integers(min_value=0, max_value=largest_factor),
 )
 @settings(deadline=None)
 @pytest.mark.asyncio
@@ -103,6 +120,4 @@ async def test_multi_precision_add_overflow(multi_precision_factory, x):
 
     result = pack(execution_info.result[0])
     assert result == x - 1
-
-
 

@@ -1,3 +1,4 @@
+# @dev Algorithms from https://cacr.uwaterloo.ca/hac/about/chap14.pdf
 from lib.BigInt6 import BigInt6, BigInt12, BASE, big_int_12_zero
 from starkware.cairo.common.math_cmp import is_le, is_nn
 from starkware.cairo.common.math import unsigned_div_rem
@@ -167,4 +168,56 @@ func multi_precision_mul{range_check_ptr}(x : BigInt6, y : BigInt6) -> (product 
 
     let (product) = sum_products(p0, p1, p2, p3, p4, p5, c5)
     return (product)
+end
+
+# @dev algorithm is twice as efficent as multi-precision multiplication
+func multi_precision_square{range_check_ptr}(x : BigInt6) -> (product : BigInt12):
+    alloc_locals
+
+    # Multiply one digit by iteself
+    let (r_0_0, d_0_0) = unsigned_div_rem(x.d0 * x.d0, BASE)
+    # Multiply each subsequent digit combination twice (multiply by two)
+    let (r_0_1, d_0_1) = unsigned_div_rem(2 * x.d0 * x.d1 + r_0_0, BASE)
+    let (r_0_2, d_0_2) = unsigned_div_rem(2 * x.d0 * x.d2 + r_0_1, BASE)
+    let (r_0_3, d_0_3) = unsigned_div_rem(2 * x.d0 * x.d3 + r_0_2, BASE)
+    let (r_0_4, d_0_4) = unsigned_div_rem(2 * x.d0 * x.d4 + r_0_3, BASE)
+    let (r6, d_0_5) = unsigned_div_rem(2 * x.d0 * x.d5 + r_0_4, BASE)
+
+    let (r_1_1, d_1_1) = unsigned_div_rem(x.d1 * x.d1, BASE)
+    let (r_1_2, d_1_2) = unsigned_div_rem(2 * x.d1 * x.d2 + r_1_1, BASE)
+    let (r_1_3, d_1_3) = unsigned_div_rem(2 * x.d1 * x.d3 + r_1_2, BASE)
+    let (r_1_4, d_1_4) = unsigned_div_rem(2 * x.d1 * x.d4 + r_1_3, BASE)
+    let (r7, d_1_5) = unsigned_div_rem(2 * x.d1 * x.d5 + r_1_4, BASE)
+
+    let (r_2_2, d_2_2) = unsigned_div_rem(x.d2 * x.d2, BASE)
+    let (r_2_3, d_2_3) = unsigned_div_rem(2 * x.d2 * x.d3 + r_2_2, BASE)
+    let (r_2_4, d_2_4) = unsigned_div_rem(2 * x.d2 * x.d4 + r_2_3, BASE)
+    let (r8, d_2_5) = unsigned_div_rem(2 * x.d2 * x.d5 + r_2_4, BASE)
+
+    let (r_3_3, d_3_3) = unsigned_div_rem(x.d3 * x.d3, BASE)
+    let (r_3_4, d_3_4) = unsigned_div_rem(2 * x.d3 * x.d4 + r_3_3, BASE)
+    let (r9, d_3_5) = unsigned_div_rem(2 * x.d3 * x.d5 + r_3_4, BASE)
+
+    let (r_4_4, d_4_4) = unsigned_div_rem(x.d4 * x.d4, BASE)
+    let (r10, d_4_5) = unsigned_div_rem(2 * x.d4 * x.d5 + r_4_4, BASE)
+
+    let (r11, d_5_5) = unsigned_div_rem(x.d5 * x.d5, BASE)
+
+    # add them together by their position in base 2*64
+    let (c0, d0) = unsigned_div_rem(d_0_0, BASE)
+    let (c1, d1) = unsigned_div_rem(d_0_1 + c0, BASE)
+    let (c2, d2) = unsigned_div_rem(d_0_2 + d_1_1 + c1, BASE)
+    let (c3, d3) = unsigned_div_rem(d_0_3 + d_1_2 + c2, BASE)
+    let (c4, d4) = unsigned_div_rem(d_0_4 + d_1_3 + d_2_2 + c3, BASE)
+    let (c5, d5) = unsigned_div_rem(d_0_5 + d_1_4 + d_2_3 + c4, BASE)
+    let (c6, d6) = unsigned_div_rem(d_1_5 + d_2_4 + d_3_3 + r6 + c5, BASE)
+    let (c7, d7) = unsigned_div_rem(d_2_5 + d_3_4 + r7 + c6, BASE)
+    let (c8, d8) = unsigned_div_rem(d_3_5 + d_4_4 + r8 + c7, BASE)
+    let (c9, d9) = unsigned_div_rem(d_4_5 + r9 + c8, BASE)
+    let (c10, d10) = unsigned_div_rem(d_5_5 + r10 + c9, BASE)
+
+    return (
+        product=BigInt12(
+        d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5, d6=d6, d7=d7, d8=d8, d9=d9, d10=d10, d11=c10 + r11
+        ))
 end
