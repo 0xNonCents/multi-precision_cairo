@@ -1,6 +1,6 @@
 # @dev Algorithms from https://cacr.uwaterloo.ca/hac/about/chap14.pdf
 from lib.BigInt6 import BigInt6, BigInt12, BASE, big_int_12_zero
-from starkware.cairo.common.math_cmp import is_le, is_nn
+from starkware.cairo.common.math_cmp import is_le, is_nn, is_not_zero
 from starkware.cairo.common.math import unsigned_div_rem
 from starkware.cairo.common.bitwise import bitwise_and
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
@@ -133,6 +133,7 @@ func mul_digit{range_check_ptr}(x : felt, c : felt, y : BigInt6) -> (
     return (carry=r_5, product=BigInt6(d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5))
 end
 
+# @dev internal
 func sum_products{range_check_ptr}(
         p0 : BigInt6, p1 : BigInt6, p2 : BigInt6, p3 : BigInt6, p4 : BigInt6, p5 : BigInt6,
         c : felt) -> (sum : BigInt12):
@@ -220,4 +221,189 @@ func multi_precision_square{range_check_ptr}(x : BigInt6) -> (product : BigInt12
         product=BigInt12(
         d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5, d6=d6, d7=d7, d8=d8, d9=d9, d10=d10, d11=c10 + r11
         ))
+end
+
+# @dev uses is_not_zero, which assumes limb is non-negative
+# @dev returns 0 index even if x is 0
+func find_lead_limb_index{range_check_ptr}(x : BigInt6) -> (lead : felt):
+    alloc_locals
+
+    let (index_5_gt_0) = is_not_zero(x.d5)
+
+    if index_5_gt_0 == 1:
+        return (5)
+    end
+
+    let (index_4_gt_0) = is_not_zero(x.d4)
+
+    if index_4_gt_0 == 1:
+        return (4)
+    end
+
+    let (index_3_gt_0) = is_not_zero(x.d3)
+
+    if index_3_gt_0 == 1:
+        return (3)
+    end
+
+    let (index_2_gt_0) = is_not_zero(x.d2)
+
+    if index_2_gt_0 == 1:
+        return (2)
+    end
+
+    let (index_1_gt_0) = is_not_zero(x.d1)
+
+    if index_1_gt_0 == 1:
+        return (1)
+    end
+
+    return (0)
+end
+
+# @dev determines if x >= y
+# @dev returns 1 if true, 0 if false
+func multi_precision_ge{range_check_ptr}(x : BigInt6, y : BigInt6) -> (is_ge : felt):
+    alloc_locals
+
+    let (lead_limb_x : felt) = find_lead_limb_index(x)
+    let (lead_limb_y : felt) = find_lead_limb_index(y)
+
+    let (x_strictly_greater : felt) = is_nn(lead_limb_x - lead_limb_y - 1)
+    let (y_strictly_greater : felt) = is_nn(lead_limb_y - lead_limb_x - 1)
+    if x_strictly_greater == 1:
+        return (1)
+    end
+
+    if y_strictly_greater == 1:
+        return (0)
+    end
+
+    if lead_limb_x == 5:
+        let (limb_5_ge : felt) = is_nn(x.d5 - y.d5)
+        return (limb_5_ge)
+    end
+
+    if lead_limb_x == 4:
+        let (limb_4_ge : felt) = is_nn(x.d4 - y.d4)
+        return (limb_4_ge)
+    end
+
+    if lead_limb_x == 3:
+        let (limb_3_ge : felt) = is_nn(x.d3 - y.d3)
+        return (limb_3_ge)
+    end
+
+    if lead_limb_x == 2:
+        let (limb_2_ge : felt) = is_nn(x.d2 - y.d2)
+        return (limb_2_ge)
+    end
+
+    if lead_limb_x == 1:
+        let (limb_1_ge : felt) = is_nn(x.d1 - y.d1)
+        return (limb_1_ge)
+    end
+
+    if lead_limb_x == 0:
+        let (limb_0_ge : felt) = is_nn(x.d0 - y.d0)
+        return (limb_0_ge)
+    end
+
+    return (1)
+end
+
+# @dev determines if x >= y
+# @dev returns 1 if true, 0 if false
+func multi_precision_gt{range_check_ptr}(x : BigInt6, y : BigInt6) -> (is_ge : felt):
+    alloc_locals
+
+    let (lead_limb_x : felt) = find_lead_limb_index(x)
+    let (lead_limb_y : felt) = find_lead_limb_index(y)
+
+    let (x_strictly_greater : felt) = is_nn(lead_limb_x - lead_limb_y - 1)
+    let (y_strictly_greater : felt) = is_nn(lead_limb_y - lead_limb_x - 1)
+    if x_strictly_greater == 1:
+        return (1)
+    end
+
+    if y_strictly_greater == 1:
+        return (0)
+    end
+
+    if lead_limb_x == 5:
+        let (limb_5_ge : felt) = is_nn(x.d5 - y.d5 - 1)
+        return (limb_5_ge)
+    end
+
+    if lead_limb_x == 4:
+        let (limb_4_ge : felt) = is_nn(x.d4 - y.d4 - 1)
+        return (limb_4_ge)
+    end
+
+    if lead_limb_x == 3:
+        let (limb_3_ge : felt) = is_nn(x.d3 - y.d3 - 1)
+        return (limb_3_ge)
+    end
+
+    if lead_limb_x == 2:
+        let (limb_2_ge : felt) = is_nn(x.d2 - y.d2 - 1)
+        return (limb_2_ge)
+    end
+
+    if lead_limb_x == 1:
+        let (limb_1_ge : felt) = is_nn(x.d1 - y.d1 - 1)
+        return (limb_1_ge)
+    end
+
+    if lead_limb_x == 0:
+        let (limb_0_ge : felt) = is_nn(x.d0 - y.d0 - 1)
+        return (limb_0_ge)
+    end
+
+    return (0)
+end
+
+# @dev divide one BigInt6 by another BigInt6 that have the same maximum limb
+# @dev the initial call should assign quotient to 0
+# @dev does not check if y is 0
+func divide_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6, quotient : felt) -> (
+        x : BigInt6, res : felt):
+    let (y_gt_x) = multi_precision_gt(y, x)
+    if y_gt_x == 1:
+        return (x, quotient)
+    end
+
+    let (new_x : BigInt6) = multi_precision_sub(x, y)
+
+    let (x, res) = divide_same_limb(new_x, y, quotient + 1)
+    return (x, res)
+end
+
+# Should cover (3, 0, 0, 0, 0, 0) / (1, 0, 0, 0, 0, 0), (3, 0, 0, 0, 0, 0) / (0, 0, 0, 0, 2, 0)
+func multi_precision_div{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : BigInt6, r : BigInt6):
+    # determine the leading digit of y, and x
+    let (lead_limb_x : felt) = find_lead_limb_index(x)
+    let (lead_limb_y : felt) = find_lead_limb_index(y)
+
+    if lead_limb_x == lead_limb_y:
+        let (r : BigInty6, q : felt) = divide_same_limb(x, y, 0)
+
+        return (q, r)
+    end
+
+    # while current bit of y > x, add one to quotient, multi_precision_sub lead bit from x
+
+    # if lead bit index of y < x, then perform the following from x index to y index + 1
+    # if xi == yt then qi-t-1 = base - 1, else qi-t-1 = floor(xi * base + xi-1) / yt
+    # felt math loop to adjust assigned q1-t-1
+    # multi_precision_sub lead bit from qi-t-1 * ybi-t-1
+    # if x is negative add back one ybi-t-1 and minus 1 from qi-t-1
+
+    # resulting x is the remainder
+
+    let (q : BigInt6) = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=0)
+
+    let (r : BigInt6) = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=0)
+
+    return (q, r)
 end

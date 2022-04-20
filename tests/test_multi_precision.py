@@ -9,6 +9,67 @@ largest_factor = sqrt(2**(64 * 11))
 
 
 @given(
+    x=st.integers(min_value=1,  max_value=(10)),
+    y=st.integers(min_value=1,  max_value=(10)),
+    base = st.integers(min_value=0, max_value=(5))
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_simple_div(multi_precision_factory, x, y, base):
+    contract = multi_precision_factory
+    execution_info = await contract.div_same_limb(split(x * 2 ** (64 * base)), split(y * 2 ** (64 * base))).call()
+
+    result = execution_info.result[0]
+
+    print(result)
+    
+    assert result == x // y
+    
+
+@given(
+    x=st.integers(min_value=0,  max_value=(2**384)),
+    y=st.integers(min_value=0,  max_value=(2**384))
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_ge(multi_precision_factory, x, y):
+    contract = multi_precision_factory
+    execution_info = await contract.ge(split(x), split(y)).call()
+
+    result = execution_info.result[0]
+
+    if x >= y:
+        assert result == 1
+    else:
+        assert result == 0
+        
+@given(
+    x=st.integers(min_value=0,  max_value=(2**384)),
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_find_lead_limb(multi_precision_factory, x):
+    contract = multi_precision_factory
+
+    execution_info = await contract.lead_limb(split(x)).call()
+
+    result = execution_info.result[0]
+    
+    index = 0
+    if x >= 2**320:
+        index = 5
+    elif x >= 2**256:
+        index = 4
+    elif x >= 2**192:
+        index = 3
+    elif x >= 2**128:
+        index = 2
+    elif x >= 2**64:
+        index = 1
+    assert result == index
+
+
+@given(
     x=st.integers(min_value=0, max_value=largest_factor),
 )
 @settings(deadline=None)
@@ -47,11 +108,7 @@ async def test_multi_precision_sum_products(multi_precision_factory, x, y):
 
     p0, p1, p2, p3, p4, p5 = [products[i] for i in (0, 1, 2, 3, 4, 5)]
 
-    print(products)
-    print("packed")
-    print(p1[0])
-    print(packEnum(p0) + p1[0] * (2 ** (64 * 2)))
-    print(x * y)
+
     execution_info = await contract.sum_p(p0, p1, p2, p3, p4, p5, carry).call()
 
     result = pack12(execution_info.result[0])

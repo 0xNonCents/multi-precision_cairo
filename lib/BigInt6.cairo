@@ -72,23 +72,6 @@ func big_int_12_zero() -> (res : BigInt12):
         ))
 end
 
-func bigint_mul(x : BigInt6, y : BigInt6) -> (res : UnreducedBigInt10):
-    return (
-        UnreducedBigInt10(
-        d0=x.d0 * y.d0,
-        d1=x.d0 * y.d1 + x.d1 * y.d0,
-        d2=x.d0 * y.d2 + x.d2 * y.d0 + x.d1 * y.d1,
-        d3=x.d0 * y.d3 + x.d3 * y.d0 + x.d1 * y.d2 + x.d2 * y.d1,
-        d4=x.d0 * y.d4 + x.d4 * y.d0 + x.d1 * y.d3 + x.d3 * y.d1 + x.d2 * y.d2,
-        d5=x.d0 * y.d5 + x.d5 * y.d0 + x.d1 * y.d4 + x.d4 * y.d1 + x.d2 * y.d3 + x.d3 * y.d2,
-        d6=x.d1 * y.d5 + x.d5 * y.d1 + x.d2 * y.d4 + x.d4 * y.d2 + x.d3 * y.d3,
-        d7=x.d2 * y.d5 + x.d5 * y.d2 + x.d3 * y.d4 + x.d3 * y.d4,
-        d8=x.d3 * y.d5 + x.d5 * y.d3 + x.d4 * y.d4,
-        d9=x.d5 * y.d4 + x.d4 * y.d5,
-        # d10=x.d5 * y.d5,
-        ))
-end
-
 func assert_bigint_is_equal(x : BigInt6, y : BigInt6):
     assert x.d0 = y.d0
     assert x.d1 = y.d1
