@@ -367,7 +367,7 @@ end
 # @dev the initial call should assign quotient to 0
 # @dev does not check if y is 0
 func divide_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6, quotient : felt) -> (
-        x : BigInt6, res : felt):
+        r : BigInt6, q : felt):
     let (y_gt_x) = multi_precision_gt(y, x)
     if y_gt_x == 1:
         return (x, quotient)
@@ -375,20 +375,22 @@ func divide_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6, quotient : felt
 
     let (new_x : BigInt6) = multi_precision_sub(x, y)
 
-    let (x, res) = divide_same_limb(new_x, y, quotient + 1)
-    return (x, res)
+    let (r, q) = divide_same_limb(new_x, y, quotient + 1)
+    return (r, q)
 end
 
-# Should cover (3, 0, 0, 0, 0, 0) / (1, 0, 0, 0, 0, 0), (3, 0, 0, 0, 0, 0) / (0, 0, 0, 0, 2, 0)
+# @dev only works for division where x and y are the same limbs. This happens to work well when paired with gt when performing modulus arithmetic.
 func multi_precision_div{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : BigInt6, r : BigInt6):
+    alloc_locals
+
     # determine the leading digit of y, and x
     let (lead_limb_x : felt) = find_lead_limb_index(x)
     let (lead_limb_y : felt) = find_lead_limb_index(y)
 
     if lead_limb_x == lead_limb_y:
-        let (r : BigInty6, q : felt) = divide_same_limb(x, y, 0)
-
-        return (q, r)
+        let (r, q : felt) = divide_same_limb(x, y, 0)
+        let q_normalized = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=q)
+        return (q_normalized, r)
     end
 
     # while current bit of y > x, add one to quotient, multi_precision_sub lead bit from x
@@ -401,9 +403,7 @@ func multi_precision_div{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : BigI
 
     # resulting x is the remainder
 
-    let (q : BigInt6) = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=0)
+    let zero : BigInt6 = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=0)
 
-    let (r : BigInt6) = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=0)
-
-    return (q, r)
+    return (zero, zero)
 end

@@ -4,7 +4,8 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin, BitwiseBuiltin
 from lib.multi_precision import (
     multi_precision_add, multi_precision_sub, multi_precision_mul, sum_products,
-    multi_precision_square, find_lead_limb_index, multi_precision_ge, divide_same_limb)
+    multi_precision_square, find_lead_limb_index, multi_precision_ge, divide_same_limb,
+    multi_precision_div)
 from lib.BigInt6 import BigInt6, BigInt12
 
 @view
@@ -79,4 +80,13 @@ func div_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6) -> (res : felt):
     let (x : BigInt6, q : felt) = divide_same_limb(x, y, 0)
 
     return (q)
+end
+
+@view
+func div{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : BigInt6, r : BigInt6):
+    alloc_locals
+
+    let (q : BigInt6, r : BigInt6) = multi_precision_div(x, y)
+
+    return (q, r)
 end

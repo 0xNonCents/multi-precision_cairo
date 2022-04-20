@@ -17,6 +17,22 @@ largest_factor = sqrt(2**(64 * 11))
 @pytest.mark.asyncio
 async def test_simple_div(multi_precision_factory, x, y, base):
     contract = multi_precision_factory
+    execution_info = await contract.div(split(x * 2 ** (64 * base)), split(y * 2 ** (64 * base))).call()
+
+    q = pack(execution_info.result[0])
+    r = pack(execution_info.result[1])   
+    assert q == x // y
+    assert r == x % y
+
+@given(
+    x=st.integers(min_value=1,  max_value=(10)),
+    y=st.integers(min_value=1,  max_value=(10)),
+    base = st.integers(min_value=0, max_value=(5))
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_simple_div(multi_precision_factory, x, y, base):
+    contract = multi_precision_factory
     execution_info = await contract.div_same_limb(split(x * 2 ** (64 * base)), split(y * 2 ** (64 * base))).call()
 
     result = execution_info.result[0]
