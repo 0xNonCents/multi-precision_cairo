@@ -16,7 +16,7 @@ func mod_range{range_check_ptr}(dividend : felt) -> (remainder : felt):
     return (remainder)
 end
 
-# @dev truncates overflow on most signifigant bit
+# @dev purposley allows overflows on most signifigant bit, used in modular arithmatic
 func multi_precision_add{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(
         x : BigInt6, y : BigInt6) -> (res : BigInt6):
     alloc_locals
@@ -52,16 +52,14 @@ func multi_precision_add{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(
     let (d2) = bitwise_and(res_2, MASK)
     let (d3) = bitwise_and(res_3, MASK)
     let (d4) = bitwise_and(res_4, MASK)
-    let (trunacted_d5) = bitwise_and(res_5, MASK)
 
-    return (
-        BigInt6(
+    return (BigInt6(
         d0=d0,
         d1=d1,
         d2=d2,
         d3=d3,
         d4=d4,
-        d5=trunacted_d5
+        d5=res_5
         ))
 end
 
