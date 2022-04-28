@@ -379,7 +379,7 @@ func divide_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6, quotient : felt
     return (x, res)
 end
 
-# Should cover (3, 0, 0, 0, 0, 0) / (1, 0, 0, 0, 0, 0), (3, 0, 0, 0, 0, 0) / (0, 0, 0, 0, 2, 0)
+# @dev Work in progress
 func multi_precision_div{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : BigInt6, r : BigInt6):
     # determine the leading digit of y, and x
     let (lead_limb_x : felt) = find_lead_limb_index(x)
