@@ -10,7 +10,7 @@ The edge case behavior ought to be tuned however for your desired use case.
 
 ### How to use
 
-git clone git@github.com:0xNonCents/multi-precision_cairo.git
+git clone git@github.com:0xNonCents/multi-precision_cairo.git </br>
 cd multi-precision_cairo
 
 <b> To test </b> </br>
