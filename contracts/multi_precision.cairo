@@ -76,12 +76,20 @@ func ge{range_check_ptr}(x : BigInt6, y : BigInt6) -> (res : felt):
 end
 
 @view
-func div_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6) -> (res : felt):
+func gt{range_check_ptr}(x : BigInt6, y : BigInt6) -> (res : felt):
+    alloc_locals
+    let (res : felt) = multi_precision.gt(x, y)
+
+    return (res)
+end
+
+@view
+func div_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6) -> (q : felt, r : BigInt6):
     alloc_locals
 
-    let (x : BigInt6, q : felt) = divide_same_limb(x, y, 0)
+    let (r : BigInt6, q : felt) = divide_same_limb(x, y, 0)
 
-    return (q)
+    return (q, r)
 end
 
 @view

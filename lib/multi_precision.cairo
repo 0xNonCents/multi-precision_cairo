@@ -243,9 +243,9 @@ namespace multi_precision:
         return (1)
     end
 
-    # @dev determines if x >= y
+    # @dev determines if x > y
     # @dev returns 1 if true, 0 if false
-    func gt{range_check_ptr}(x : BigInt6, y : BigInt6) -> (is_ge : felt):
+    func gt{range_check_ptr}(x : BigInt6, y : BigInt6) -> (is_gt : felt):
         alloc_locals
 
         let (lead_limb_x : felt) = find_lead_limb_index(x)
@@ -253,6 +253,7 @@ namespace multi_precision:
 
         let (x_strictly_greater : felt) = is_nn(lead_limb_x - lead_limb_y - 1)
         let (y_strictly_greater : felt) = is_nn(lead_limb_y - lead_limb_x - 1)
+
         if x_strictly_greater == 1:
             return (1)
         end
@@ -262,33 +263,33 @@ namespace multi_precision:
         end
 
         if lead_limb_x == 5:
-            let (limb_5_ge : felt) = is_nn(x.d5 - y.d5 - 1)
-            return (limb_5_ge)
+            let (limb_5_gt : felt) = is_nn(x.d5 - y.d5 - 1)
+            return (limb_5_gt)
         end
 
         if lead_limb_x == 4:
-            let (limb_4_ge : felt) = is_nn(x.d4 - y.d4 - 1)
-            return (limb_4_ge)
+            let (limb_4_gt : felt) = is_nn(x.d4 - y.d4 - 1)
+            return (limb_4_gt)
         end
 
         if lead_limb_x == 3:
-            let (limb_3_ge : felt) = is_nn(x.d3 - y.d3 - 1)
-            return (limb_3_ge)
+            let (limb_3_gt : felt) = is_nn(x.d3 - y.d3 - 1)
+            return (limb_3_gt)
         end
 
         if lead_limb_x == 2:
-            let (limb_2_ge : felt) = is_nn(x.d2 - y.d2 - 1)
-            return (limb_2_ge)
+            let (limb_2_gt : felt) = is_nn(x.d2 - y.d2 - 1)
+            return (limb_2_gt)
         end
 
         if lead_limb_x == 1:
-            let (limb_1_ge : felt) = is_nn(x.d1 - y.d1 - 1)
-            return (limb_1_ge)
+            let (limb_1_gt : felt) = is_nn(x.d1 - y.d1 - 1)
+            return (limb_1_gt)
         end
 
         if lead_limb_x == 0:
-            let (limb_0_ge : felt) = is_nn(x.d0 - y.d0 - 1)
-            return (limb_0_ge)
+            let (limb_0_gt : felt) = is_nn(x.d0 - y.d0 - 1)
+            return (limb_0_gt)
         end
 
         return (0)
@@ -304,7 +305,7 @@ namespace multi_precision:
 
         if lead_limb_x == lead_limb_y:
             let (r, q : felt) = divide_same_limb(x, y, 0)
-            let q_normalized = BigInt6(d0=0, d1=0, d2=0, d3=0, d4=0, d5=q)
+            let q_normalized = BigInt6(d0=q, d1=0, d2=0, d3=0, d4=0, d5=0)
             return (q_normalized, r)
         end
 
