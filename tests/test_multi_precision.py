@@ -1,7 +1,5 @@
-"""contract.cairo test file."""
-
 import pytest
-from utils import split, packEnum,  pack,pack12, max_base_bigint6_sum, base
+from utils import split, pack, pack12, max_base_bigint6_sum, base
 from math import sqrt
 from hypothesis import given, strategies as st, settings
 
@@ -10,19 +8,19 @@ largest_factor = sqrt(2**(64 * 11))
 
 @given(
     x=st.integers(min_value=1,  max_value=(10)),
-    y=st.integers(min_value=1,  max_value=(10)),
-    base = st.integers(min_value=0, max_value=(5))
+    y=st.integers(min_value=2,  max_value=(10)),
+    base = st.integers(min_value=1, max_value=(5))
 )
 @settings(deadline=None)
 @pytest.mark.asyncio
-async def test_simple_div(multi_precision_factory, x, y, base):
+async def test_div(multi_precision_factory, x, y, base):
     contract = multi_precision_factory
     execution_info = await contract.div(split(x * 2 ** (64 * base)), split(y * 2 ** (64 * base))).call()
 
     q = pack(execution_info.result[0])
     r = pack(execution_info.result[1])   
     assert q == x // y
-    assert r == x % y
+    assert r == (x * 2 ** (64 * base)) % (y * 2 ** (64 * base))
 
 @given(
     x=st.integers(min_value=1,  max_value=(10)),
@@ -31,15 +29,14 @@ async def test_simple_div(multi_precision_factory, x, y, base):
 )
 @settings(deadline=None)
 @pytest.mark.asyncio
-async def test_simple_div(multi_precision_factory, x, y, base):
+async def test_div_same_limb(multi_precision_factory, x, y, base):
     contract = multi_precision_factory
     execution_info = await contract.div_same_limb(split(x * 2 ** (64 * base)), split(y * 2 ** (64 * base))).call()
 
-    result = execution_info.result[0]
-
-    print(result)
-    
-    assert result == x // y
+    q = execution_info.result[0]
+    r = pack(execution_info.result[1])
+    assert q == x // y
+    assert r == (x * 2 ** (64 * base)) % (y * 2 ** (64 * base))
     
 
 @given(
@@ -58,7 +55,25 @@ async def test_ge(multi_precision_factory, x, y):
         assert result == 1
     else:
         assert result == 0
+
+@given(
+    x=st.integers(min_value=0,  max_value=(2**384)),
+    y=st.integers(min_value=0,  max_value=(2**384))
+)
+@settings(deadline=None)
+@pytest.mark.asyncio
+async def test_gt(multi_precision_factory, x, y):
+    contract = multi_precision_factory
+    execution_info = await contract.gt(split(x), split(y)).call()
+
+    result = execution_info.result[0]
+
+    if x > y:
+        assert result == 1
+    else:
+        assert result == 0
         
+
 @given(
     x=st.integers(min_value=0,  max_value=(2**384)),
 )
