@@ -20,8 +20,7 @@ end
 namespace multi_precision:
     # @dev truncates overflow on most signifigant bit
     func add{range_check_ptr, bitwise_ptr : BitwiseBuiltin*}(x : BigInt6, y : BigInt6) -> (
-        res : BigInt6
-    ):
+            res : BigInt6):
         alloc_locals
 
         let res_0 = x.d0 + y.d0
@@ -65,8 +64,7 @@ namespace multi_precision:
             d3=d3,
             d4=d4,
             d5=trunacted_d5
-            ),
-        )
+            ))
     end
 
     # @dev truncates overflow on most signifigant bit
@@ -121,8 +119,7 @@ namespace multi_precision:
             d3=d3,
             d4=d4,
             d5=trunacted_d5
-            ),
-        )
+            ))
     end
 
     func mul{range_check_ptr}(x : BigInt6, y : BigInt6) -> (product : BigInt12):
@@ -188,8 +185,7 @@ namespace multi_precision:
         return (
             product=BigInt12(
             d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5, d6=d6, d7=d7, d8=d8, d9=d9, d10=d10, d11=c10 + r11
-            ),
-        )
+            ))
     end
 
     # @dev determines if x >= y
@@ -211,33 +207,87 @@ namespace multi_precision:
         end
 
         if lead_limb_x == 5:
-            let (limb_5_ge : felt) = is_nn(x.d5 - y.d5)
-            return (limb_5_ge)
+            let (limb_5_gt : felt) = is_nn(x.d5 - y.d5 - 1)
+            if limb_5_gt == 1:
+                return (1)
+            else:
+                tempvar range_check_ptr = range_check_ptr
+            end
+
+            let (limb_5_lt : felt) = is_nn(y.d5 - x.d5 - 1)
+            if limb_5_lt == 1:
+                return (0)
+            else:
+                tempvar range_check_ptr = range_check_ptr
+            end
+        else:
+            tempvar range_check_ptr = range_check_ptr
         end
 
-        if lead_limb_x == 4:
-            let (limb_4_ge : felt) = is_nn(x.d4 - y.d4)
-            return (limb_4_ge)
+        let (lead_limb_ge_4 : felt) = is_nn(lead_limb_x - 4)
+
+        if lead_limb_ge_4 == 1:
+            let (limb_4_gt : felt) = is_nn(x.d4 - y.d4 - 1)
+            if limb_4_gt == 1:
+                return (1)
+            end
+
+            let (limb_4_lt : felt) = is_nn(y.d4 - x.d4 - 1)
+            if limb_4_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 3:
-            let (limb_3_ge : felt) = is_nn(x.d3 - y.d3)
-            return (limb_3_ge)
+        let (lead_limb_ge_3 : felt) = is_nn(lead_limb_x - 3)
+
+        if lead_limb_ge_3 == 1:
+            let (limb_3_gt : felt) = is_nn(x.d3 - y.d3 - 1)
+            if limb_3_gt == 1:
+                return (1)
+            end
+
+            let (limb_3_lt : felt) = is_nn(y.d3 - x.d3 - 1)
+            if limb_3_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 2:
-            let (limb_2_ge : felt) = is_nn(x.d2 - y.d2)
-            return (limb_2_ge)
+        let (lead_limb_ge_2 : felt) = is_nn(lead_limb_x - 2)
+
+        if lead_limb_ge_2 == 1:
+            let (limb_2_gt : felt) = is_nn(x.d2 - y.d2 - 1)
+            if limb_2_gt == 1:
+                return (1)
+            end
+
+            let (limb_2_lt : felt) = is_nn(y.d2 - x.d2 - 1)
+            if limb_2_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 1:
-            let (limb_1_ge : felt) = is_nn(x.d1 - y.d1)
-            return (limb_1_ge)
+        let (lead_limb_ge_1 : felt) = is_nn(lead_limb_x - 1)
+
+        if lead_limb_ge_1 == 1:
+            let (limb_1_gt : felt) = is_nn(x.d1 - y.d1 - 1)
+            if limb_1_gt == 1:
+                return (1)
+            end
+
+            let (limb_1_lt : felt) = is_nn(y.d1 - x.d1 - 1)
+            if limb_1_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 0:
-            let (limb_0_ge : felt) = is_nn(x.d0 - y.d0)
-            return (limb_0_ge)
+        let (limb_0_gt : felt) = is_nn(x.d0 - y.d0 - 1)
+        if limb_0_gt == 1:
+            return (1)
+        end
+
+        let (limb_0_lt : felt) = is_nn(y.d0 - x.d0 - 1)
+        if limb_0_lt == 1:
+            return (0)
         end
 
         return (1)
@@ -264,32 +314,86 @@ namespace multi_precision:
 
         if lead_limb_x == 5:
             let (limb_5_gt : felt) = is_nn(x.d5 - y.d5 - 1)
-            return (limb_5_gt)
+            if limb_5_gt == 1:
+                return (1)
+            else:
+                tempvar range_check_ptr = range_check_ptr
+            end
+
+            let (limb_5_lt : felt) = is_nn(y.d5 - x.d5 - 1)
+            if limb_5_lt == 1:
+                return (0)
+            else:
+                tempvar range_check_ptr = range_check_ptr
+            end
+        else:
+            tempvar range_check_ptr = range_check_ptr
         end
 
-        if lead_limb_x == 4:
+        let (lead_limb_ge_4 : felt) = is_nn(lead_limb_x - 4)
+
+        if lead_limb_ge_4 == 1:
             let (limb_4_gt : felt) = is_nn(x.d4 - y.d4 - 1)
-            return (limb_4_gt)
+            if limb_4_gt == 1:
+                return (1)
+            end
+
+            let (limb_4_lt : felt) = is_nn(y.d4 - x.d4 - 1)
+            if limb_4_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 3:
+        let (lead_limb_ge_3 : felt) = is_nn(lead_limb_x - 3)
+
+        if lead_limb_ge_3 == 1:
             let (limb_3_gt : felt) = is_nn(x.d3 - y.d3 - 1)
-            return (limb_3_gt)
+            if limb_3_gt == 1:
+                return (1)
+            end
+
+            let (limb_3_lt : felt) = is_nn(y.d3 - x.d3 - 1)
+            if limb_3_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 2:
+        let (lead_limb_ge_2 : felt) = is_nn(lead_limb_x - 2)
+
+        if lead_limb_ge_2 == 1:
             let (limb_2_gt : felt) = is_nn(x.d2 - y.d2 - 1)
-            return (limb_2_gt)
+            if limb_2_gt == 1:
+                return (1)
+            end
+
+            let (limb_2_lt : felt) = is_nn(y.d2 - x.d2 - 1)
+            if limb_2_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 1:
+        let (lead_limb_ge_1 : felt) = is_nn(lead_limb_x - 1)
+
+        if lead_limb_ge_1 == 1:
             let (limb_1_gt : felt) = is_nn(x.d1 - y.d1 - 1)
-            return (limb_1_gt)
+            if limb_1_gt == 1:
+                return (1)
+            end
+
+            let (limb_1_lt : felt) = is_nn(y.d1 - x.d1 - 1)
+            if limb_1_lt == 1:
+                return (0)
+            end
         end
 
-        if lead_limb_x == 0:
-            let (limb_0_gt : felt) = is_nn(x.d0 - y.d0 - 1)
-            return (limb_0_gt)
+        let (limb_0_gt : felt) = is_nn(x.d0 - y.d0 - 1)
+        if limb_0_gt == 1:
+            return (1)
+        end
+
+        let (limb_0_lt : felt) = is_nn(y.d0 - x.d0 - 1)
+        if limb_0_lt == 1:
+            return (0)
         end
 
         return (0)
@@ -327,8 +431,8 @@ end
 
 # @dev internal functions
 func sum_products{range_check_ptr}(
-    p0 : BigInt6, p1 : BigInt6, p2 : BigInt6, p3 : BigInt6, p4 : BigInt6, p5 : BigInt6, c : felt
-) -> (sum : BigInt12):
+        p0 : BigInt6, p1 : BigInt6, p2 : BigInt6, p3 : BigInt6, p4 : BigInt6, p5 : BigInt6,
+        c : felt) -> (sum : BigInt12):
     let (sum_zero) = big_int_12_zero()
 
     let (c0, d0) = unsigned_div_rem(p0.d0, BASE)
@@ -346,13 +450,11 @@ func sum_products{range_check_ptr}(
     return (
         sum=BigInt12(
         d0=d0, d1=d1, d2=d2, d3=d3, d4=d4, d5=d5, d6=d6, d7=d7, d8=d8, d9=d9, d10=d10, d11=c10 + c
-        ),
-    )
+        ))
 end
 
 func mul_digit{range_check_ptr}(x : felt, c : felt, y : BigInt6) -> (
-    carry : felt, product : BigInt6
-):
+        carry : felt, product : BigInt6):
     # TODO research if product(d0) > BASE then subtracting base will cost less gas
     let (r_0, d0) = unsigned_div_rem(x * y.d0, BASE)
     let (r_1, d1) = unsigned_div_rem((x * y.d1) + r_0, BASE)
@@ -406,8 +508,7 @@ end
 # @dev the initial call should assign quotient to 0
 # @dev does not check if y is 0
 func divide_same_limb{range_check_ptr}(x : BigInt6, y : BigInt6, quotient : felt) -> (
-    r : BigInt6, q : felt
-):
+        r : BigInt6, q : felt):
     let (y_gt_x) = multi_precision.gt(y, x)
     if y_gt_x == 1:
         return (x, quotient)
