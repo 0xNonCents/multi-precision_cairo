@@ -28,7 +28,7 @@ def pack(z):
 
 
 MULTI_PRECISION_CONTRACT = os.path.join("contracts", "multi_precision.cairo")
-
+BARRET_REDUCTION_CONTRACT = os.path.join("contracts", "barret_algorithm.cairo")
 
 @pytest.fixture(scope="module")
 def event_loop():
@@ -51,3 +51,15 @@ async def multi_precision_factory(starknet_factory):
     multi_precision_contract = await starknet.deploy(contract_def=contract_def)
 
     return multi_precision_contract
+
+
+@pytest.fixture(scope="module")
+async def reduction_factory(starknet_factory):
+    
+    starknet = starknet_factory
+
+    # Deploy the account contract
+    contract_def= compile_starknet_files(files=[BARRET_REDUCTION_CONTRACT], disable_hint_validation=True)
+    reduction_contract = await starknet.deploy(contract_def=contract_def)
+
+    return reduction_contract

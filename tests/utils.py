@@ -4,7 +4,12 @@ one_bigint6 = ( 1, 0, 0, 0, 0, 0 )
 
 max_base_bigint6 = (2 ** 64 - 1, 0, 0, 0, 0, 0)
 max_base_bigint6_sum =( 2 ** 384 ) - 1
+max_base_bigint12_sum =( 2 ** 768 ) - 1
 base = 2 ** 64
+
+field_modulus = 4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787
+
+max_felt = 2**241
 
 def split(num: int, length:int=6) -> List[int]:
     BASE = 2 ** 64
